@@ -219,17 +219,17 @@ function HeroCloud({ fpsTarget }: { fpsTarget: { current: number } }) {
     fpsTarget.current = Math.abs(scrollTarget.current - progress) > 0.003 ? 60 : 30
     const exitProgress = Math.min(1, progress / 0.72)
     const easedProgress = exitProgress * exitProgress * (3 - 2 * exitProgress)
-    model.current.scale.setScalar((size.width < 640 ? 1.12 : 2.15) * (1 + Math.sin(time * 0.58) * 0.012))
+    model.current.scale.setScalar((size.width < 640 ? 1.12 : 3) * (1 + Math.sin(time * 0.58) * 0.012))
     model.current.position.x = easedProgress * (size.width < 640 ? 2.4 : 3.2) + Math.sin(time * 0.34) * 0.1
     model.current.rotation.y = Math.sin(time * 0.42) * 0.2 + easedProgress * 0.14
     model.current.rotation.x = Math.cos(time * 0.5) * 0.12
     model.current.rotation.z = Math.sin(time * 0.31) * 0.045 + easedProgress * 0.1
     model.current.position.y = Math.sin(time * 0.86) * 0.2 + Math.cos(time * 0.38) * 0.07
     if (faceMaterial.current) {
-      faceMaterial.current.opacity = 0.52 * entranceEase * (1 - easedProgress)
+      faceMaterial.current.opacity = (0.46 + 0.22 * entranceEase) * (1 - easedProgress)
     }
     if (sideMaterial.current) {
-      sideMaterial.current.opacity = 0.42 * entranceEase * (1 - easedProgress)
+      sideMaterial.current.opacity = (0.34 + 0.16 * entranceEase) * (1 - easedProgress)
     }
   })
 
@@ -245,7 +245,7 @@ function HeroCloud({ fpsTarget }: { fpsTarget: { current: number } }) {
           attach="material-0"
           color="#f3f8ff"
           transparent
-          opacity={0}
+          opacity={0.46}
           roughness={0.42}
           metalness={0}
           clearcoat={0.24}
@@ -260,7 +260,7 @@ function HeroCloud({ fpsTarget }: { fpsTarget: { current: number } }) {
           attach="material-1"
           color="#dce9fa"
           transparent
-          opacity={0}
+          opacity={0.34}
           roughness={0.48}
           metalness={0.02}
           clearcoat={0.18}
@@ -516,7 +516,7 @@ export function PortfolioScene({ variant = 'hero', isMobile = false }: { variant
 
   return (
     <div ref={scene} className={isContact ? 'h-[400px] w-full sm:h-[520px]' : 'h-full w-full'} role="img" aria-label={isContact ? 'Animated 3D chat bubble' : 'Animated 3D glass cloud'}>
-      <Canvas dpr={isMobile ? 1.4 : 1} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop="demand" camera={{ fov: 45, position: [0, 0, isContact ? 5.1 : 6.2] }}>
+      <Canvas dpr={isMobile ? 1.4 : 1} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop="demand" camera={{ fov: isContact || isMobile ? 45 : 70, position: [0, 0, isContact ? 5.1 : 6.2] }}>
         <FrameRateController active={active} fpsTarget={fpsTarget} />
         {isContact ? (
           <>

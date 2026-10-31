@@ -58,7 +58,8 @@ function useDeferredScene<T extends HTMLElement>(rootMargin: string) {
 export function PortfolioScene({ variant = 'hero' }: { variant?: 'hero' | 'contact' }) {
   const isContact = variant === 'contact'
   const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches
-  const [container, ready] = useDeferredScene<HTMLDivElement>(isContact ? '260px' : '0px')
+  const [container, deferredReady] = useDeferredScene<HTMLDivElement>(isContact ? '260px' : '0px')
+  const ready = !isContact || deferredReady
 
   return (
     <div
