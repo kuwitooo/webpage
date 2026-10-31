@@ -25,8 +25,6 @@ import {
   WireframeGeometry,
 } from 'three'
 
-// Fiber 9 still creates THREE.Clock internally. Suppress only its deprecation
-// notice through Three.js' logger, preserving all other Three.js warnings.
 const threeGlobal = globalThis as typeof globalThis & { __kuwitoClockWarningFilterInstalled?: boolean }
 if (!threeGlobal.__kuwitoClockWarningFilterInstalled) {
   const previousThreeConsole = getConsoleFunction()
@@ -256,6 +254,7 @@ type ParticlePointer = { x: number; y: number; active: boolean }
 
 function ParticleCloud({ pointer }: { pointer: { current: ParticlePointer } }) {
   const { size } = useThree()
+  const particleCount = size.width < 640 ? 1300 : size.width < 1024 ? 2100 : 2800
   const field = useRef<Group>(null)
   const pointsMaterial = useRef<PointsMaterial>(null)
   const visibilityTarget = useRef(0)
@@ -265,7 +264,7 @@ function ParticleCloud({ pointer }: { pointer: { current: ParticlePointer } }) {
   const pointerLocal = useMemo(() => new Vector3(), [])
   const [calm, setCalm] = useState(1)
   const geometry = useMemo(() => {
-    const count = size.width < 640 ? 1300 : size.width < 1024 ? 2100 : 2800
+    const count = particleCount
     const positions = new Float32Array(count * 3)
     const colors = new Float32Array(count * 3)
     const random = (seed: number) => {
@@ -297,7 +296,7 @@ function ParticleCloud({ pointer }: { pointer: { current: ParticlePointer } }) {
     pointsGeometry.setAttribute('position', new Float32BufferAttribute(positions, 3))
     pointsGeometry.setAttribute('color', new Float32BufferAttribute(colors, 3))
     return pointsGeometry
-  }, [size.width])
+  }, [particleCount])
   const basePositions = useMemo(
     () => new Float32Array(geometry.attributes.position.array as Float32Array),
     [geometry],

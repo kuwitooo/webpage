@@ -1,11 +1,7 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
-  allowedDevOrigins: ['192.168.0.126'],
-  agentRules: false,
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  basePath: process.env.GITHUB_ACTIONS === 'true' ? '/webpage' : '',
+  trailingSlash: true,
   images: {
     unoptimized: true,
   },

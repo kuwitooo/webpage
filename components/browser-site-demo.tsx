@@ -36,7 +36,7 @@ export function BrowserSiteDemo() {
   const homeLink = useRef<HTMLSpanElement>(null)
   const projectsLink = useRef<HTMLSpanElement>(null)
   const contactLink = useRef<HTMLSpanElement>(null)
-  const projectCard = useRef<HTMLElement | null>(null)
+  const projectCard = useRef<HTMLDivElement | null>(null)
   const contactAction = useRef<HTMLSpanElement>(null)
   const reloadButton = useRef<HTMLSpanElement>(null)
 

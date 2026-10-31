@@ -63,7 +63,7 @@ export function PortfolioScene({ variant = 'hero' }: { variant?: 'hero' | 'conta
       role="img"
       aria-label={isContact ? 'Animated 3D chat bubble' : 'Animated 3D glass cloud'}
     >
-      {ready && <PortfolioScene3D variant={variant} />}
+      {ready && <div className="lazy-scene-enter"><PortfolioScene3D variant={variant} /></div>}
     </div>
   )
 }
@@ -73,7 +73,7 @@ export function SkillsParticleField() {
 
   return (
     <div ref={container} className="h-full w-full">
-      {ready && <SkillsParticleField3D />}
+      {ready && <div className="lazy-scene-enter h-full w-full"><SkillsParticleField3D /></div>}
     </div>
   )
 }
