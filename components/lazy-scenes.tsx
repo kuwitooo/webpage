@@ -28,24 +28,27 @@ function useDeferredScene<T extends HTMLElement>(rootMargin: string) {
 
     const idleWindow = window as IdleWindow
     let idleId: number | undefined
-    let timeoutId: number | undefined
+    let startId: number | undefined
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) return
 
       observer.disconnect()
-      if (idleWindow.requestIdleCallback) {
-        idleId = idleWindow.requestIdleCallback(() => setReady(true), { timeout: 900 })
-      } else {
-        timeoutId = window.setTimeout(() => setReady(true), 120)
-      }
+      const mobileDelay = window.matchMedia('(max-width: 639px)').matches && rootMargin === '0px' ? 700 : 100
+      startId = window.setTimeout(() => {
+        if (idleWindow.requestIdleCallback) {
+          idleId = idleWindow.requestIdleCallback(() => setReady(true), { timeout: 1400 })
+        } else {
+          setReady(true)
+        }
+      }, mobileDelay)
     }, { rootMargin })
 
     observer.observe(element)
 
     return () => {
       observer.disconnect()
+      if (startId !== undefined) window.clearTimeout(startId)
       if (idleId !== undefined) idleWindow.cancelIdleCallback?.(idleId)
-      if (timeoutId !== undefined) window.clearTimeout(timeoutId)
     }
   }, [rootMargin])
 
@@ -54,6 +57,7 @@ function useDeferredScene<T extends HTMLElement>(rootMargin: string) {
 
 export function PortfolioScene({ variant = 'hero' }: { variant?: 'hero' | 'contact' }) {
   const isContact = variant === 'contact'
+  const isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches
   const [container, ready] = useDeferredScene<HTMLDivElement>(isContact ? '260px' : '0px')
 
   return (
@@ -63,7 +67,7 @@ export function PortfolioScene({ variant = 'hero' }: { variant?: 'hero' | 'conta
       role="img"
       aria-label={isContact ? 'Animated 3D chat bubble' : 'Animated 3D glass cloud'}
     >
-      {ready && <div className="lazy-scene-enter"><PortfolioScene3D variant={variant} /></div>}
+      {ready && <div className="lazy-scene-enter"><PortfolioScene3D variant={variant} isMobile={isMobile} /></div>}
     </div>
   )
 }

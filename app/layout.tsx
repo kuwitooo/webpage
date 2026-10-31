@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
-const basePath = process.env.GITHUB_ACTIONS === 'true' ? '/secret-phantasm' : ''
+const basePath = process.env.GITHUB_ACTIONS === 'true' ? '/webpage' : ''
 
 export const metadata: Metadata = {
   title: 'kuwitoDEV',

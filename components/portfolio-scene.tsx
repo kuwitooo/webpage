@@ -499,7 +499,7 @@ function ChatBubbleModel() {
   )
 }
 
-export function PortfolioScene({ variant = 'hero' }: { variant?: 'hero' | 'contact' }) {
+export function PortfolioScene({ variant = 'hero', isMobile = false }: { variant?: 'hero' | 'contact'; isMobile?: boolean }) {
   const isContact = variant === 'contact'
   const scene = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(!isContact)
@@ -514,7 +514,7 @@ export function PortfolioScene({ variant = 'hero' }: { variant?: 'hero' | 'conta
 
   return (
     <div ref={scene} className={isContact ? 'h-[400px] w-full sm:h-[520px]' : 'h-full w-full'} role="img" aria-label={isContact ? 'Animated 3D chat bubble' : 'Animated 3D glass cloud'}>
-      <Canvas dpr={1} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop="demand" camera={{ fov: 45, position: [0, 0, isContact ? 5.1 : 6.2] }}>
+      <Canvas dpr={isMobile ? 0.8 : 1} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop="demand" camera={{ fov: 45, position: [0, 0, isContact ? 5.1 : 6.2] }}>
         <FrameRateController active={active} />
         {isContact ? (
           <>

@@ -1221,6 +1221,10 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 }
 
 @media (max-width: 639px) {
+  .hero-glow { display: none; }
+  .hero-ambient::before { filter: none; animation: none; opacity: .55; }
+  .hero-grid { animation: none; }
+  .hero-glass-panels { display: none; }
   .work-mac-address { font-size: .7rem; }
   .hero-glass-panel-one { top: 39%; right: 54%; width: 35vw; height: 38%; }
   .hero-glass-panel-two { top: 41%; right: -2%; width: 35vw; height: 36%; }
