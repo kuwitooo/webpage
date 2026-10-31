@@ -219,7 +219,7 @@ function HeroCloud({ fpsTarget }: { fpsTarget: { current: number } }) {
     fpsTarget.current = Math.abs(scrollTarget.current - progress) > 0.003 ? 60 : 30
     const exitProgress = Math.min(1, progress / 0.72)
     const easedProgress = exitProgress * exitProgress * (3 - 2 * exitProgress)
-    model.current.scale.setScalar((size.width < 640 ? 1.12 : 2) * (1 + Math.sin(time * 0.58) * 0.012))
+    model.current.scale.setScalar((size.width < 640 ? 1.12 : 2.15) * (1 + Math.sin(time * 0.58) * 0.012))
     model.current.position.x = easedProgress * (size.width < 640 ? 2.4 : 3.2) + Math.sin(time * 0.34) * 0.1
     model.current.rotation.y = Math.sin(time * 0.42) * 0.2 + easedProgress * 0.14
     model.current.rotation.x = Math.cos(time * 0.5) * 0.12
@@ -516,7 +516,7 @@ export function PortfolioScene({ variant = 'hero', isMobile = false }: { variant
 
   return (
     <div ref={scene} className={isContact ? 'h-[400px] w-full sm:h-[520px]' : 'h-full w-full'} role="img" aria-label={isContact ? 'Animated 3D chat bubble' : 'Animated 3D glass cloud'}>
-      <Canvas dpr={isMobile ? 1.1 : 1} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop="demand" camera={{ fov: 45, position: [0, 0, isContact ? 5.1 : 6.2] }}>
+      <Canvas dpr={isMobile ? 1.4 : 1} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop="demand" camera={{ fov: 45, position: [0, 0, isContact ? 5.1 : 6.2] }}>
         <FrameRateController active={active} fpsTarget={fpsTarget} />
         {isContact ? (
           <>
