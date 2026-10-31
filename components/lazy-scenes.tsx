@@ -68,7 +68,7 @@ export function PortfolioScene({ variant = 'hero' }: { variant?: 'hero' | 'conta
       role="img"
       aria-label={isContact ? 'Animated 3D chat bubble' : 'Animated 3D glass cloud'}
     >
-      {ready && <div className="lazy-scene-enter"><PortfolioScene3D variant={variant} isMobile={isMobile} /></div>}
+      {ready && <div className="lazy-scene-enter h-full w-full"><PortfolioScene3D variant={variant} isMobile={isMobile} /></div>}
     </div>
   )
 }

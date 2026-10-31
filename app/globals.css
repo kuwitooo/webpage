@@ -1351,6 +1351,6 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
   .hero-copy > h1 { width: 100%; max-width: 48rem; min-width: 0; margin-top: 1.5rem; transform: translateY(-1.5rem); font-size: clamp(3.9rem, 17vw, 5.8rem); line-height: .9; letter-spacing: -.08em; order: 1; }
   .hero-title > .hero-liquid-text { white-space: nowrap; font-size: clamp(3rem, 13vw, 3.75rem); }
   .hero-copy > p { width: 100%; min-width: 0; margin-top: 0; order: 3; }
-  .hero-scene { width: 100%; min-width: 0; height: clamp(10rem, 18vh, 13rem); order: 2; }
+  .hero-scene { width: 100%; min-width: 0; height: clamp(11rem, 20vh, 14rem); order: 2; }
   .hero-copy > .hero-actions { width: 100%; min-width: 0; margin-top: 1.25rem; order: 4; justify-content: center; column-gap: .75rem; row-gap: .9rem; }
 }

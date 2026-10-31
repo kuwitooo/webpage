@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect, useRef } from 'react'
+
 const items = [
   { label: 'обо мне', href: '#about' },
   { label: 'работы', href: '#work' },
@@ -8,8 +10,22 @@ const items = [
 ]
 
 export function MobileMenu() {
+  const menuRef = useRef<HTMLDetailsElement>(null)
+
+  useEffect(() => {
+    const closeOnOutsidePress = (event: PointerEvent) => {
+      const menu = menuRef.current
+      if (menu?.open && event.target instanceof Node && !menu.contains(event.target)) {
+        menu.open = false
+      }
+    }
+
+    document.addEventListener('pointerdown', closeOnOutsidePress)
+    return () => document.removeEventListener('pointerdown', closeOnOutsidePress)
+  }, [])
+
   return (
-    <details className="mobile-menu-disclosure relative z-[52] isolate md:hidden">
+    <details ref={menuRef} className="mobile-menu-disclosure relative z-[52] isolate md:hidden">
       <summary
         aria-label="Меню"
         aria-controls="mobile-navigation"

@@ -69,7 +69,7 @@ export default function Page() {
             <h1 className="hero-title order-1 mx-auto max-w-6xl text-balance text-center text-[clamp(3.2rem,9.4vw,8rem)] font-medium leading-[.91] tracking-[-0.075em] text-white">Цифровые решения<br className="hidden sm:block" /><br className="sm:hidden" /><span className="hero-liquid-text">для ваших идей.</span></h1>
             <div className="hero-actions order-4 mt-6 flex w-full flex-wrap items-center justify-center gap-3 sm:mt-8 sm:gap-5"><a href="#work" className="inline-flex min-h-14 items-center gap-3 px-4 py-3 text-base text-slate-200 underline decoration-slate-500 underline-offset-8 transition hover:text-white">Смотреть работы <ArrowDown size={18} /></a><a href="#contact" className="group inline-flex min-h-14 items-center gap-3 rounded-full bg-cyan-300 px-7 py-4 text-base font-semibold text-[#04101e] transition hover:bg-white">Связаться <ArrowUpRight size={18} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a></div>
           </div>
-          <div className="hero-scene order-2 relative flex h-[clamp(14rem,32vh,22rem)] w-full max-w-[38rem] min-w-0 items-center justify-center">
+          <div className="hero-scene order-2 relative flex h-[clamp(15rem,32vh,23rem)] w-full max-w-[46rem] min-w-0 items-center justify-center">
             <div className="relative z-10 h-full w-full"><PortfolioScene variant="hero" /></div>
           </div>
         </div>
