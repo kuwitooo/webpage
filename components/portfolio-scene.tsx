@@ -39,6 +39,30 @@ if (!threeGlobal.__kuwitoClockWarningFilterInstalled) {
   threeGlobal.__kuwitoClockWarningFilterInstalled = true
 }
 
+function FrameRateController({ active, fps = 30 }: { active: boolean; fps?: number }) {
+  const invalidate = useThree((state) => state.invalidate)
+
+  useEffect(() => {
+    if (!active) return
+
+    let frame = 0
+    let lastRender = 0
+    const frameInterval = 1000 / fps
+    const tick = (time: number) => {
+      if (time - lastRender >= frameInterval) {
+        lastRender = time
+        invalidate()
+      }
+      frame = window.requestAnimationFrame(tick)
+    }
+
+    frame = window.requestAnimationFrame(tick)
+    return () => window.cancelAnimationFrame(frame)
+  }, [active, fps, invalidate])
+
+  return null
+}
+
 function SoftGlow({ calm, baseSize = 9, position = [0, 0, 0] }: { calm: number; baseSize?: number; position?: [number, number, number] }) {
   const sprite = useRef<Sprite>(null)
   const elapsed = useRef(0)
@@ -159,11 +183,11 @@ function HeroCloud() {
     const cloudGeometry = new ExtrudeGeometry(shape, {
       depth: 0.58,
       bevelEnabled: true,
-      bevelSegments: 12,
+      bevelSegments: 8,
       steps: 1,
       bevelSize: 0.12,
       bevelThickness: 0.12,
-      curveSegments: 48,
+      curveSegments: 32,
     })
     cloudGeometry.center()
     return cloudGeometry
@@ -194,7 +218,7 @@ function HeroCloud() {
     const progress = scrollProgress.current
     const exitProgress = Math.min(1, progress / 0.72)
     const easedProgress = exitProgress * exitProgress * (3 - 2 * exitProgress)
-    model.current.scale.setScalar((size.width < 640 ? 1 : 1.62) * (1 + Math.sin(time * 0.58) * 0.012))
+      model.current.scale.setScalar((size.width < 640 ? 1.12 : 1.9) * (1 + Math.sin(time * 0.58) * 0.012))
     model.current.position.x = easedProgress * (size.width < 640 ? 2.4 : 3.2) + Math.sin(time * 0.34) * 0.1
     model.current.rotation.y = Math.sin(time * 0.42) * 0.2 + easedProgress * 0.14
     model.current.rotation.x = Math.cos(time * 0.5) * 0.12
@@ -420,7 +444,8 @@ export function SkillsParticleField() {
 
   return (
     <div ref={container} className="h-full w-full">
-      <Canvas dpr={[1, 1.1]} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop={active ? 'always' : 'never'} camera={{ fov: 48, position: [0, 0, 7] }}>
+      <Canvas dpr={1} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop="demand" camera={{ fov: 48, position: [0, 0, 7] }}>
+        <FrameRateController active={active} />
         <ParticleCloud pointer={pointer} />
       </Canvas>
     </div>
@@ -489,7 +514,8 @@ export function PortfolioScene({ variant = 'hero' }: { variant?: 'hero' | 'conta
 
   return (
     <div ref={scene} className={isContact ? 'h-[400px] w-full sm:h-[520px]' : 'h-full w-full'} role="img" aria-label={isContact ? 'Animated 3D chat bubble' : 'Animated 3D glass cloud'}>
-      <Canvas dpr={[1, 1.1]} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop={active ? 'always' : 'never'} camera={{ fov: 45, position: [0, 0, isContact ? 5.1 : 6.2] }}>
+      <Canvas dpr={1} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop="demand" camera={{ fov: 45, position: [0, 0, isContact ? 5.1 : 6.2] }}>
+        <FrameRateController active={active} />
         {isContact ? (
           <>
             <ChatBubbleModel />

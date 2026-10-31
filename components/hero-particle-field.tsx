@@ -56,12 +56,12 @@ export function HeroParticleField() {
       const bounds = section.getBoundingClientRect()
       width = bounds.width
       height = bounds.height
-      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5)
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25)
       canvas.width = Math.round(width * pixelRatio)
       canvas.height = Math.round(height * pixelRatio)
       context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0)
 
-      const count = width < 640 ? 30 : width < 1024 ? 44 : 62
+      const count = width < 640 ? 26 : width < 1024 ? 36 : 48
       particles = Array.from({ length: count }, () => {
         const x = Math.random() * width
         const y = Math.random() * height
@@ -125,6 +125,10 @@ export function HeroParticleField() {
     }
 
     const animate = (time: number) => {
+      if (lastTime && time - lastTime < 1000 / 30) {
+        frame = window.requestAnimationFrame(animate)
+        return
+      }
       if (!lastTime) lastTime = time
       const delta = Math.min((time - lastTime) / 1000, 0.04)
       lastTime = time
