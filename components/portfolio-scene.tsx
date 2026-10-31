@@ -39,7 +39,7 @@ if (!threeGlobal.__kuwitoClockWarningFilterInstalled) {
   threeGlobal.__kuwitoClockWarningFilterInstalled = true
 }
 
-function FrameRateController({ active, fps = 30 }: { active: boolean; fps?: number }) {
+function FrameRateController({ active, fps = 30, fpsTarget }: { active: boolean; fps?: number; fpsTarget?: { current: number } }) {
   const invalidate = useThree((state) => state.invalidate)
 
   useEffect(() => {
@@ -47,9 +47,9 @@ function FrameRateController({ active, fps = 30 }: { active: boolean; fps?: numb
 
     let frame = 0
     let lastRender = 0
-    const frameInterval = 1000 / fps
     const tick = (time: number) => {
-      if (time - lastRender >= frameInterval) {
+      const targetInterval = 1000 / (fpsTarget?.current ?? fps)
+      if (time - lastRender >= targetInterval) {
         lastRender = time
         invalidate()
       }
@@ -58,7 +58,7 @@ function FrameRateController({ active, fps = 30 }: { active: boolean; fps?: numb
 
     frame = window.requestAnimationFrame(tick)
     return () => window.cancelAnimationFrame(frame)
-  }, [active, fps, invalidate])
+  }, [active, fps, fpsTarget, invalidate])
 
   return null
 }
@@ -162,7 +162,7 @@ function StarDust({ calm }: { calm: number }) {
   )
 }
 
-function HeroCloud() {
+function HeroCloud({ fpsTarget }: { fpsTarget: { current: number } }) {
   const model = useRef<Group>(null)
   const faceMaterial = useRef<MeshPhysicalMaterial>(null)
   const sideMaterial = useRef<MeshPhysicalMaterial>(null)
@@ -216,9 +216,10 @@ function HeroCloud() {
     const entranceEase = entrance * entrance * (3 - 2 * entrance)
     scrollProgress.current += (scrollTarget.current - scrollProgress.current) * Math.min(1, delta * 4)
     const progress = scrollProgress.current
+    fpsTarget.current = Math.abs(scrollTarget.current - progress) > 0.003 ? 60 : 30
     const exitProgress = Math.min(1, progress / 0.72)
     const easedProgress = exitProgress * exitProgress * (3 - 2 * exitProgress)
-      model.current.scale.setScalar((size.width < 640 ? 1.12 : 1.9) * (1 + Math.sin(time * 0.58) * 0.012))
+    model.current.scale.setScalar((size.width < 640 ? 1.12 : 2) * (1 + Math.sin(time * 0.58) * 0.012))
     model.current.position.x = easedProgress * (size.width < 640 ? 2.4 : 3.2) + Math.sin(time * 0.34) * 0.1
     model.current.rotation.y = Math.sin(time * 0.42) * 0.2 + easedProgress * 0.14
     model.current.rotation.x = Math.cos(time * 0.5) * 0.12
@@ -502,6 +503,7 @@ function ChatBubbleModel() {
 export function PortfolioScene({ variant = 'hero', isMobile = false }: { variant?: 'hero' | 'contact'; isMobile?: boolean }) {
   const isContact = variant === 'contact'
   const scene = useRef<HTMLDivElement>(null)
+  const fpsTarget = useRef(30)
   const [active, setActive] = useState(!isContact)
 
   useEffect(() => {
@@ -514,8 +516,8 @@ export function PortfolioScene({ variant = 'hero', isMobile = false }: { variant
 
   return (
     <div ref={scene} className={isContact ? 'h-[400px] w-full sm:h-[520px]' : 'h-full w-full'} role="img" aria-label={isContact ? 'Animated 3D chat bubble' : 'Animated 3D glass cloud'}>
-      <Canvas dpr={isMobile ? 0.8 : 1} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop="demand" camera={{ fov: 45, position: [0, 0, isContact ? 5.1 : 6.2] }}>
-        <FrameRateController active={active} />
+      <Canvas dpr={isMobile ? 1.1 : 1} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop="demand" camera={{ fov: 45, position: [0, 0, isContact ? 5.1 : 6.2] }}>
+        <FrameRateController active={active} fpsTarget={fpsTarget} />
         {isContact ? (
           <>
             <ChatBubbleModel />
@@ -526,7 +528,7 @@ export function PortfolioScene({ variant = 'hero', isMobile = false }: { variant
           </>
         ) : (
           <>
-            <HeroCloud />
+            <HeroCloud fpsTarget={fpsTarget} />
             <ambientLight color="#dceaff" intensity={1.05} />
             <directionalLight position={[4, 5, 6]} intensity={3.5} color="#ffffff" />
             <pointLight position={[-3, 2.6, 3.5]} intensity={4.2} distance={12} color="#c8e7ff" />
