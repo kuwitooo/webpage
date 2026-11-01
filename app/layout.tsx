@@ -4,7 +4,7 @@ import './globals.css'
 const basePath = process.env.GITHUB_ACTIONS === 'true' ? '/webpage' : ''
 
 export const metadata: Metadata = {
-  title: 'kuwitoDEV',
+  title: 'kuwitoDEV - разработка и дизайн',
   description: 'Портфолио kuwito: сайты и цифровые продукты с продуманным дизайном и надёжной работой.',
   generator: 'kuwito',
   icons: {

@@ -29,10 +29,7 @@ function useDeferredScene<T extends HTMLElement>(rootMargin: string) {
     const idleWindow = window as IdleWindow
     let idleId: number | undefined
     let startId: number | undefined
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return
-
-      observer.disconnect()
+    const deferUntilIdle = () => {
       const mobileDelay = window.matchMedia('(max-width: 639px)').matches && rootMargin === '0px' ? 700 : 100
       startId = window.setTimeout(() => {
         if (idleWindow.requestIdleCallback) {
@@ -41,6 +38,21 @@ function useDeferredScene<T extends HTMLElement>(rootMargin: string) {
           setReady(true)
         }
       }, mobileDelay)
+    }
+
+    if (!('IntersectionObserver' in window)) {
+      deferUntilIdle()
+      return () => {
+        if (startId !== undefined) window.clearTimeout(startId)
+        if (idleId !== undefined) idleWindow.cancelIdleCallback?.(idleId)
+      }
+    }
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return
+
+      observer.disconnect()
+      deferUntilIdle()
     }, { rootMargin })
 
     observer.observe(element)

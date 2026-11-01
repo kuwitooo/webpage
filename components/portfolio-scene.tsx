@@ -19,8 +19,9 @@ import {
   type Mesh,
   type MeshPhysicalMaterial,
   type Points,
-  type PointsMaterial,
+  type ShaderMaterial,
   type Sprite,
+  Vector2,
   Vector3,
   WireframeGeometry,
 } from 'three'
@@ -196,7 +197,7 @@ function HeroCloud({ fpsTarget }: { fpsTarget: { current: number } }) {
   useEffect(() => {
     const updateScrollProgress = () => {
       const distance = Math.max(0, window.scrollY || document.documentElement.scrollTop)
-      scrollTarget.current = Math.min(1, distance / Math.max(1, window.innerHeight * 0.75))
+      scrollTarget.current = Math.min(1, distance / Math.max(1, window.innerHeight * 1.05))
     }
 
     updateScrollProgress()
@@ -214,17 +215,18 @@ function HeroCloud({ fpsTarget }: { fpsTarget: { current: number } }) {
     const time = elapsed.current
     const entrance = Math.min(1, time / 1.15)
     const entranceEase = entrance * entrance * (3 - 2 * entrance)
-    scrollProgress.current += (scrollTarget.current - scrollProgress.current) * Math.min(1, delta * 4)
+    scrollProgress.current += (scrollTarget.current - scrollProgress.current) * Math.min(1, delta * 2.6)
     const progress = scrollProgress.current
     fpsTarget.current = Math.abs(scrollTarget.current - progress) > 0.003 ? 60 : 30
-    const exitProgress = Math.min(1, progress / 0.72)
+    const exitProgress = Math.min(1, progress / 0.92)
     const easedProgress = exitProgress * exitProgress * (3 - 2 * exitProgress)
-    model.current.scale.setScalar((size.width < 640 ? 1 : 1.6) * (1 + Math.sin(time * 0.58) * 0.008))
-    model.current.position.x = easedProgress * (size.width < 640 ? 2.4 : 3.2) + Math.sin(time * 0.34) * 0.1
+    model.current.scale.setScalar((size.width < 640 ? 0.68 : 1) * (1 + Math.sin(time * 0.58) * 0.008))
+    const mobile = size.width < 640
+    model.current.position.x = (mobile ? 5.35 : 2.5) + easedProgress * (mobile ? 5.5 : 7.5) + Math.sin(time * 0.34) * 0.1
     model.current.rotation.y = Math.sin(time * 0.42) * 0.2 + easedProgress * 0.14
     model.current.rotation.x = Math.cos(time * 0.5) * 0.12
     model.current.rotation.z = Math.sin(time * 0.31) * 0.045 + easedProgress * 0.1
-    model.current.position.y = Math.sin(time * 0.86) * 0.2 + Math.cos(time * 0.38) * 0.07
+    model.current.position.y = (mobile ? 1 : 1.45) + Math.sin(time * 0.86) * 0.2 + Math.cos(time * 0.38) * 0.07
     if (faceMaterial.current) {
       faceMaterial.current.opacity = (0.46 + 0.22 * entranceEase) * (1 - easedProgress)
     }
@@ -275,19 +277,68 @@ function HeroCloud({ fpsTarget }: { fpsTarget: { current: number } }) {
   )
 }
 
-type ParticlePointer = { x: number; y: number; active: boolean }
+type ParticlePointer = { x: number; y: number; active: boolean; clickAt: number }
+
+const particleVertexShader = /* glsl */ `
+  uniform vec2 uPointer;
+  uniform float uRadius;
+  uniform float uStrength;
+  uniform float uPulse;
+  uniform float uSize;
+  uniform float uScale;
+  attribute vec3 aColor;
+  varying vec3 vColor;
+
+  void main() {
+    vec3 p = position;
+    vec2 d = p.xy - uPointer;
+    float dist = length(d);
+    if (dist < uRadius) {
+      float falloff = pow(1.0 - dist / uRadius, 2.0) * uStrength;
+      p.xy += d / max(dist, 0.001) * falloff;
+    }
+    float pulseRadius = (1.0 - uPulse) * uRadius * 1.35;
+    float pulseWidth = max(uRadius * 0.14, 0.01);
+    float clickWave = exp(-pow((dist - pulseRadius) / pulseWidth, 2.0)) * uPulse;
+    p.xy += d / max(dist, 0.001) * clickWave * 0.32;
+    vec4 mv = modelViewMatrix * vec4(p, 1.0);
+    gl_PointSize = max(uSize * uScale / -mv.z, 1.2);
+    vColor = aColor;
+    gl_Position = projectionMatrix * mv;
+  }
+`
+
+const particleFragmentShader = /* glsl */ `
+  uniform float uOpacity;
+  varying vec3 vColor;
+
+  void main() {
+    if (length(gl_PointCoord - vec2(0.5)) > 0.5) discard;
+    gl_FragColor = vec4(vColor, uOpacity);
+    #include <colorspace_fragment>
+  }
+`
 
 function ParticleCloud({ pointer }: { pointer: { current: ParticlePointer } }) {
   const { size } = useThree()
-  const particleCount = size.width < 640 ? 1300 : size.width < 1024 ? 2100 : 2800
+  const particleCount = size.width < 640 ? 650 : size.width < 1024 ? 1000 : 1400
   const field = useRef<Group>(null)
-  const pointsMaterial = useRef<PointsMaterial>(null)
+  const material = useRef<ShaderMaterial>(null)
   const visibilityTarget = useRef(0)
   const visibility = useRef(0)
   const elapsed = useRef(0)
   const pointerInfluence = useRef(0)
   const pointerLocal = useMemo(() => new Vector3(), [])
   const [calm, setCalm] = useState(1)
+  const uniforms = useMemo(() => ({
+    uPointer: { value: new Vector2(0, 0) },
+    uRadius: { value: 1.25 },
+    uStrength: { value: 0 },
+    uPulse: { value: 0 },
+    uSize: { value: 0.022 },
+    uScale: { value: 350 },
+    uOpacity: { value: 0 },
+  }), [])
   const geometry = useMemo(() => {
     const count = particleCount
     const positions = new Float32Array(count * 3)
@@ -319,13 +370,11 @@ function ParticleCloud({ pointer }: { pointer: { current: ParticlePointer } }) {
 
     const pointsGeometry = new BufferGeometry()
     pointsGeometry.setAttribute('position', new Float32BufferAttribute(positions, 3))
-    pointsGeometry.setAttribute('color', new Float32BufferAttribute(colors, 3))
+    pointsGeometry.setAttribute('aColor', new Float32BufferAttribute(colors, 3))
     return pointsGeometry
   }, [particleCount])
-  const basePositions = useMemo(
-    () => new Float32Array(geometry.attributes.position.array as Float32Array),
-    [geometry],
-  )
+
+  useEffect(() => () => geometry.dispose(), [geometry])
 
   useEffect(() => {
     const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -339,9 +388,24 @@ function ParticleCloud({ pointer }: { pointer: { current: ParticlePointer } }) {
     const section = document.getElementById('services')
     if (!section) return
 
+    const updateVisibility = () => {
+      const bounds = section.getBoundingClientRect()
+      visibilityTarget.current = bounds.top < window.innerHeight + 220 && bounds.bottom > -220 ? 1 : 0
+    }
+
+    updateVisibility()
+    if (!('IntersectionObserver' in window)) {
+      window.addEventListener('scroll', updateVisibility, { passive: true })
+      window.addEventListener('resize', updateVisibility)
+      return () => {
+        window.removeEventListener('scroll', updateVisibility)
+        window.removeEventListener('resize', updateVisibility)
+      }
+    }
+
     const observer = new IntersectionObserver(([entry]) => {
       visibilityTarget.current = entry.isIntersecting ? 1 : 0
-    }, { threshold: 0.05, rootMargin: '-18% 0px -18% 0px' })
+    }, { threshold: 0.01, rootMargin: '220px 0px' })
 
     observer.observe(section)
     return () => observer.disconnect()
@@ -363,50 +427,33 @@ function ParticleCloud({ pointer }: { pointer: { current: ParticlePointer } }) {
 
     const pointerState = pointer.current
     pointerInfluence.current += ((pointerState.active ? 1 : 0) - pointerInfluence.current) * Math.min(1, delta * 7)
-    if (pointerInfluence.current > 0.001) {
+    const clickPulse = pointerState.clickAt > 0 ? Math.max(0, 1 - (performance.now() - pointerState.clickAt) / 900) : 0
+    uniforms.uPulse.value = clickPulse
+    uniforms.uStrength.value = Math.max(pointerInfluence.current * 0.72, clickPulse * 0.58)
+    if (uniforms.uStrength.value > 0) {
       pointerLocal.set(pointerState.x * viewport.width * 0.5, pointerState.y * viewport.height * 0.5, 0)
       field.current.updateWorldMatrix(true, false)
       field.current.worldToLocal(pointerLocal)
-
-      const positions = geometry.attributes.position.array as Float32Array
-      const radius = mobile ? 1.05 : 1.25
-      const strength = pointerInfluence.current * 0.72
-      const smoothing = Math.min(1, delta * 10)
-
-      for (let index = 0; index < positions.length; index += 3) {
-        const baseX = basePositions[index]
-        const baseY = basePositions[index + 1]
-        const dx = baseX - pointerLocal.x
-        const dy = baseY - pointerLocal.y
-        const distance = Math.hypot(dx, dy)
-        let targetX = baseX
-        let targetY = baseY
-
-        if (distance < radius) {
-          const falloff = (1 - distance / radius) ** 2 * strength
-          const direction = 1 / Math.max(distance, 0.001)
-          targetX += dx * direction * falloff
-          targetY += dy * direction * falloff
-        }
-
-        positions[index] += (targetX - positions[index]) * smoothing
-        positions[index + 1] += (targetY - positions[index + 1]) * smoothing
-        positions[index + 2] += (basePositions[index + 2] - positions[index + 2]) * smoothing
-      }
-
-      geometry.attributes.position.needsUpdate = true
+      uniforms.uPointer.value.set(pointerLocal.x, pointerLocal.y)
+      uniforms.uRadius.value = mobile ? 1.05 : 1.25
     }
 
-    if (pointsMaterial.current) {
-      pointsMaterial.current.opacity = 0.72 * visible
-      pointsMaterial.current.size = mobile ? 0.014 : 0.022
-    }
+    uniforms.uOpacity.value = 0.84 * visible
+    uniforms.uSize.value = mobile ? 0.045 : 0.058
+    uniforms.uScale.value = size.height * 0.62
   })
 
   return (
     <group ref={field}>
-      <points geometry={geometry}>
-        <pointsMaterial ref={pointsMaterial} vertexColors transparent opacity={0} size={0.022} sizeAttenuation depthWrite={false} />
+      <points geometry={geometry} frustumCulled={false}>
+        <shaderMaterial
+          ref={material}
+          uniforms={uniforms}
+          vertexShader={particleVertexShader}
+          fragmentShader={particleFragmentShader}
+          transparent
+          depthWrite={false}
+        />
       </points>
     </group>
   )
@@ -414,17 +461,23 @@ function ParticleCloud({ pointer }: { pointer: { current: ParticlePointer } }) {
 
 export function SkillsParticleField() {
   const container = useRef<HTMLDivElement>(null)
-  const pointer = useRef<ParticlePointer>({ x: 0, y: 0, active: false })
+  const pointer = useRef<ParticlePointer>({ x: 0, y: 0, active: false, clickAt: 0 })
   const [active, setActive] = useState(false)
 
   useEffect(() => {
     const element = container.current
     if (!element) return
-    const observer = new IntersectionObserver(([entry]) => setActive(entry.isIntersecting), { rootMargin: '160px' })
-    observer.observe(element)
+    let observer: IntersectionObserver | undefined
+    if ('IntersectionObserver' in window) {
+      observer = new IntersectionObserver(([entry]) => setActive(entry.isIntersecting), { rootMargin: '160px' })
+      observer.observe(element)
+    } else {
+      setActive(true)
+    }
 
-    const trackPointer = (event: PointerEvent) => {
-      if (event.pointerType === 'touch') return
+    let pointerFrame = 0
+    let latestPointer: PointerEvent | null = null
+    const updatePointerPosition = (event: PointerEvent) => {
       const bounds = element.getBoundingClientRect()
       const inside = event.clientX >= bounds.left && event.clientX <= bounds.right && event.clientY >= bounds.top && event.clientY <= bounds.bottom
       pointer.current.active = inside
@@ -432,13 +485,43 @@ export function SkillsParticleField() {
       pointer.current.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1
       pointer.current.y = 1 - ((event.clientY - bounds.top) / bounds.height) * 2
     }
-    const clearPointer = () => { pointer.current.active = false }
+    const updatePointer = () => {
+      pointerFrame = 0
+      const event = latestPointer
+      latestPointer = null
+      if (event) updatePointerPosition(event)
+    }
+    const trackPointer = (event: PointerEvent) => {
+      latestPointer = event
+      if (!pointerFrame) pointerFrame = window.requestAnimationFrame(updatePointer)
+    }
+    const trackPress = (event: PointerEvent) => {
+      if (event.button !== 0) return
+      updatePointerPosition(event)
+      if (pointer.current.active) pointer.current.clickAt = performance.now()
+    }
+    const releaseTouch = (event: PointerEvent) => {
+      if (event.pointerType === 'touch') pointer.current.active = false
+    }
+    const clearPointer = () => {
+      pointer.current.active = false
+      latestPointer = null
+      if (pointerFrame) window.cancelAnimationFrame(pointerFrame)
+      pointerFrame = 0
+    }
 
     window.addEventListener('pointermove', trackPointer, { passive: true })
+    window.addEventListener('pointerdown', trackPress, { passive: true })
+    window.addEventListener('pointerup', releaseTouch, { passive: true })
+    window.addEventListener('pointercancel', releaseTouch, { passive: true })
     window.addEventListener('blur', clearPointer)
     return () => {
-      observer.disconnect()
+      observer?.disconnect()
+      if (pointerFrame) window.cancelAnimationFrame(pointerFrame)
       window.removeEventListener('pointermove', trackPointer)
+      window.removeEventListener('pointerdown', trackPress)
+      window.removeEventListener('pointerup', releaseTouch)
+      window.removeEventListener('pointercancel', releaseTouch)
       window.removeEventListener('blur', clearPointer)
     }
   }, [])
@@ -446,7 +529,7 @@ export function SkillsParticleField() {
   return (
     <div ref={container} className="h-full w-full">
       <Canvas dpr={1} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop="demand" camera={{ fov: 48, position: [0, 0, 7] }}>
-        <FrameRateController active={active} />
+        <FrameRateController active={active} fps={24} />
         <ParticleCloud pointer={pointer} />
       </Canvas>
     </div>
@@ -475,8 +558,8 @@ function ChatBubbleModel() {
     if (!model.current) return
     elapsed.current += delta
     const time = elapsed.current
-    const mobileScale = Math.min(0.84, Math.max(0.64, (state.size.width / 390) * 0.78))
-    model.current.scale.setScalar(state.size.width < 640 ? mobileScale : 0.98)
+    const mobileScale = Math.min(0.62, Math.max(0.46, (state.size.width / 390) * 0.56))
+    model.current.scale.setScalar(state.size.width < 640 ? mobileScale : 0.62)
     model.current.position.x = Math.sin(time * 0.72) * 0.18 + Math.sin(time * 0.31) * 0.08
     model.current.position.y = Math.cos(time * 0.53) * 0.15 + Math.sin(time * 0.87) * 0.05
     model.current.position.z = Math.sin(time * 0.46) * 0.07
@@ -509,6 +592,10 @@ export function PortfolioScene({ variant = 'hero', isMobile = false }: { variant
   useEffect(() => {
     const element = scene.current
     if (!element) return
+    if (!('IntersectionObserver' in window)) {
+      setActive(true)
+      return
+    }
     const observer = new IntersectionObserver(([entry]) => setActive(entry.isIntersecting), { rootMargin: '160px' })
     observer.observe(element)
     return () => observer.disconnect()

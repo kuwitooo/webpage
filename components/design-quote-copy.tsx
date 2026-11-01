@@ -18,13 +18,17 @@ export function DesignQuoteCopy() {
     const quote = quoteRef.current
     if (!quote) return
 
-    if (!('IntersectionObserver' in window)) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
       setIsVisible(true)
       return
     }
 
     const observer = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
+      ([entry]) => {
+        if (!entry.isIntersecting) return
+        setIsVisible(true)
+        observer.unobserve(quote)
+      },
       { threshold: 0.25 },
     )
 
