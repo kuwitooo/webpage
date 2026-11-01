@@ -387,6 +387,7 @@ function ParticleCloud({ pointer }: { pointer: { current: ParticlePointer } }) {
   useEffect(() => {
     const section = document.getElementById('services')
     if (!section) return
+    const Observer = (window as Window & { IntersectionObserver?: typeof IntersectionObserver }).IntersectionObserver
 
     const updateVisibility = () => {
       const bounds = section.getBoundingClientRect()
@@ -394,7 +395,7 @@ function ParticleCloud({ pointer }: { pointer: { current: ParticlePointer } }) {
     }
 
     updateVisibility()
-    if (!('IntersectionObserver' in window)) {
+    if (!Observer) {
       window.addEventListener('scroll', updateVisibility, { passive: true })
       window.addEventListener('resize', updateVisibility)
       return () => {
@@ -403,7 +404,7 @@ function ParticleCloud({ pointer }: { pointer: { current: ParticlePointer } }) {
       }
     }
 
-    const observer = new IntersectionObserver(([entry]) => {
+    const observer = new Observer(([entry]) => {
       visibilityTarget.current = entry.isIntersecting ? 1 : 0
     }, { threshold: 0.01, rootMargin: '220px 0px' })
 
