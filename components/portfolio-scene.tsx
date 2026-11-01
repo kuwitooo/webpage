@@ -209,7 +209,7 @@ function HeroCloud({ fpsTarget }: { fpsTarget: { current: number } }) {
     }
   }, [])
 
-  useFrame(({ size }, delta) => {
+  useFrame(({ size, viewport }, delta) => {
     if (!model.current) return
     elapsed.current += delta
     const time = elapsed.current
@@ -220,9 +220,12 @@ function HeroCloud({ fpsTarget }: { fpsTarget: { current: number } }) {
     fpsTarget.current = Math.abs(scrollTarget.current - progress) > 0.003 ? 60 : 30
     const exitProgress = Math.min(1, progress / 0.92)
     const easedProgress = exitProgress * exitProgress * (3 - 2 * exitProgress)
-    model.current.scale.setScalar((size.width < 640 ? 0.68 : 1) * (1 + Math.sin(time * 0.58) * 0.008))
     const mobile = size.width < 640
-    model.current.position.x = (mobile ? 5.35 : 2.5) + easedProgress * (mobile ? 5.5 : 7.5) + Math.sin(time * 0.34) * 0.1
+    const scale = mobile ? 0.68 : 1
+    model.current.scale.setScalar(scale * (1 + Math.sin(time * 0.58) * 0.008))
+    const mobileRightLimit = viewport.width / 2 - 2.5 * scale - 0.4
+    const baseX = mobile ? Math.min(3.9, mobileRightLimit) : 2.5
+    model.current.position.x = baseX + easedProgress * (mobile ? 5.5 : 7.5) + Math.sin(time * 0.34) * 0.1
     model.current.rotation.y = Math.sin(time * 0.42) * 0.2 + easedProgress * 0.14
     model.current.rotation.x = Math.cos(time * 0.5) * 0.12
     model.current.rotation.z = Math.sin(time * 0.31) * 0.045 + easedProgress * 0.1
