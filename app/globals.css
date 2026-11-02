@@ -31,6 +31,7 @@
   --ring: oklch(0.88 0.14 195);
   --radius: 1rem;
   --section-seam: #071326;
+  --section-content-inset: 0rem;
 }
 
 * { box-sizing: border-box; }
@@ -56,7 +57,7 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
   border: 1px solid rgb(235 245 255 / 18%);
   border-radius: 9999px;
   background: rgb(5 11 23 / 88%);
-  box-shadow: 0 8px 28px rgb(0 5 16 / 30%);
+  box-shadow: 0 12px 36px rgb(0 5 16 / 38%), 0 2px 8px rgb(0 0 0 / 18%);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   pointer-events: auto;
@@ -86,6 +87,13 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 }
 .section-label { -webkit-user-select: none; user-select: none; text-transform: lowercase; }
 ::selection { background: oklch(0.88 0.14 195 / .3); color: white; }
+
+main > section:not(#top) > .mx-auto,
+main > section:not(#top) > .design-quote-inner,
+.site-footer-inner {
+  position: relative;
+  left: var(--section-content-inset);
+}
 
 .header-nav {
   gap: .7rem;
@@ -442,7 +450,13 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 .contact-scene-wrap {
   position: relative;
   isolation: isolate;
+  width: min(100%, 28rem);
+  margin-inline: auto;
+  margin-bottom: -1rem;
 }
+.contact-methods-title { margin-top: -2.5rem; }
+.contact-methods-links { margin-top: 1.6rem; }
+.contact-description { font-size: .92rem; }
 
 .section-tint-contact::before { display: none; }
 
@@ -713,7 +727,7 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 .about-title {
   margin-top: 0;
   color: #f5f9ff;
-  font-size: clamp(3rem, 6vw, 5.8rem);
+  font-size: clamp(2.7rem, 5.2vw, 5rem);
   font-weight: 500;
   line-height: .98;
   letter-spacing: -.075em;
@@ -816,11 +830,15 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 .hero-copy { display: flex; flex-direction: column; align-items: flex-start; }
 .hero-title { width: 100%; text-wrap: balance; }
 .hero-copy > h1 { transform: translateY(-1rem); }
+.hero-copy > h1,
+.hero-copy > p { position: relative; left: var(--section-content-inset); }
 .hero-liquid-text { padding-right: .1em; }
 .hero-description { width: min(100%, 44rem); }
-.hero-copy > .hero-actions { margin-top: clamp(5rem, 9vh, 7rem); }
+.hero-copy > .hero-actions { position: relative; left: var(--section-content-inset); margin-top: clamp(5rem, 9vh, 7rem); }
+.services-heading h2 { font-size: clamp(2.8rem, 5.8vw, 4.5rem); }
+.contact-title { font-size: clamp(2.5rem, 5.6vw, 4.8rem); }
 .hero-scene { pointer-events: auto; }
-#top > .hero-scene {
+#top .hero-scene {
   position: absolute;
   z-index: 1;
   top: clamp(5rem, 8vh, 7rem);
@@ -834,6 +852,7 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
   justify-content: center;
   pointer-events: none;
 }
+#top > .pointer-events-none { transform: translateY(-3rem); }
 
 .skills-intro { isolation: isolate; }
 .skills-intro { width: 100%; }
@@ -1252,7 +1271,7 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
   }
   .skills-intro { min-height: 0; padding-top: .5rem; }
   .services-heading { max-width: 38rem; margin-left: 0; gap: 1.4rem; }
-  .services-heading h2 { max-width: 10ch; font-size: clamp(3.8rem, 5vw, 5.4rem); line-height: .96; }
+  .services-heading h2 { max-width: 10ch; font-size: clamp(3.3rem, 4.6vw, 4.8rem); line-height: .96; }
   .services-heading > p { max-width: 31rem; }
   .services-grid { padding-top: clamp(10rem, 25vh, 15rem); }
   .skills-particle-field {
@@ -1267,10 +1286,20 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
 }
 
 @media (max-width: 767px) {
+  :root { --section-content-inset: 0rem; }
+  #top { padding-bottom: 1.5rem; }
+  #contact { padding-top: 2rem; }
+  #contact > div > div { min-height: auto; align-content: start; margin-top: .5rem; }
   .site-header-inner { width: calc(100% - 2.25rem); height: 56px; gap: .7rem; padding: 0 .75rem 0 1.25rem; background: rgb(5 11 23 / 92%); }
   .design-quote-copy { font-size: clamp(1.25rem, 5.2vw, 1.65rem); }
   .about-layout { grid-template-columns: minmax(0, 1fr); gap: 3rem; padding: clamp(3rem, 8vh, 5rem) 0; }
-  .about-title { font-size: clamp(2.8rem, 11vw, 4rem); }
+  .about-title { font-size: clamp(2.5rem, 9.5vw, 3.5rem); }
+  .services-heading h2 { font-size: clamp(2.4rem, 9vw, 3.2rem); }
+  .contact-title { font-size: clamp(4.5rem, 16vw, 5.2rem); }
+  .contact-description { font-size: .82rem; line-height: 1.55; }
+  .contact-methods-title { margin-top: -3rem; }
+  .contact-methods-links { margin-top: 1.25rem; }
+  .contact-scene-wrap { width: min(100%, 20rem); }
   .about-description { margin-top: 1.2rem; }
   .about-capabilities { column-gap: 0; }
   .about-capability { padding: 1rem .8rem 0 0; }
@@ -1278,15 +1307,15 @@ body { margin: 0; background: var(--background); color: var(--foreground); font-
   .about-capability-copy h3 { font-size: clamp(1.15rem, 4vw, 1.35rem); }
   .about-capability-copy p { font-size: .8rem; }
   .section-tint-work > .about-moon { top: 2.4rem; right: 1.25rem; width: clamp(3rem, 11vw, 4rem); }
-  #top > .hero-scene { top: 5.5rem; right: auto; left: -2%; width: min(96vw, 31rem); height: clamp(13rem, 25vh, 17rem); }
-  #top > .pointer-events-none { min-height: calc(100svh - 10rem); justify-content: flex-start; }
+  #top .hero-scene { position: relative; top: auto; right: auto; left: auto; width: min(100vw, 33rem); height: clamp(9rem, 19vh, 12rem); margin: -.25rem auto 0; }
+  #top > .pointer-events-none { min-height: calc(100svh - 10rem); align-items: flex-start; justify-content: flex-start; }
   .skills-particle-field { bottom: auto; }
   .hero-copy { display: contents; }
-  .hero-copy > h1 { width: calc(100% - .45rem); max-width: 48rem; min-width: 0; margin-top: 11rem; transform: translate(.45rem, -3.5rem); font-size: clamp(2.2rem, 10.8vw, 3.2rem); line-height: 1.04; letter-spacing: -.045em; order: 1; }
+  .hero-copy > h1 { width: 100%; max-width: 48rem; min-width: 0; margin-top: 11rem; transform: translateY(-3.5rem); font-size: clamp(2.2rem, 10.8vw, 3.2rem); line-height: 1.04; letter-spacing: -.045em; order: 1; }
   .hero-title > .hero-liquid-text { white-space: nowrap; font-size: clamp(1.85rem, 8.8vw, 2.6rem); }
-  .hero-copy > p { width: calc(100% - .45rem); min-width: 0; margin-top: .75rem; transform: translate(.45rem, -1.75rem); order: 3; }
-  .hero-scene { width: 100%; min-width: 0; height: clamp(11rem, 20vh, 14rem); order: 2; }
-  .hero-copy > .hero-actions { width: 100%; min-width: 0; margin-top: auto; margin-bottom: 4.25rem; transform: none; order: 4; align-self: center; justify-content: center; column-gap: .25rem; row-gap: .5rem; }
+  .hero-copy > p { width: 100%; min-width: 0; margin-top: .25rem; transform: translateY(-1.75rem); order: 2; }
+  .hero-scene { width: 100%; min-width: 0; height: clamp(9rem, 19vh, 12rem); order: 3; }
+  .hero-copy > .hero-actions { left: 0; width: 100%; min-width: 0; margin-top: auto; margin-bottom: .75rem; transform: none; order: 4; align-self: center; justify-content: center; column-gap: .25rem; row-gap: .5rem; }
   .hero-copy > .hero-actions > a { min-height: 3rem; gap: .5rem; font-size: .9rem; white-space: nowrap; }
   .hero-copy > .hero-actions > a[href="#work"] { padding-inline: .5rem; }
   .hero-copy > .hero-actions > a[href="#contact"] { padding-inline: 1.15rem; }
