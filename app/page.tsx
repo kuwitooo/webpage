@@ -61,8 +61,8 @@ export default function Page() {
         <HeroParticleField />
         <div className="hero-transition-fade absolute inset-x-0 bottom-0 -z-10" aria-hidden="true" />
         <div className="pointer-events-none relative z-10 mx-auto flex w-full min-w-0 max-w-7xl flex-col items-start justify-center gap-3 sm:gap-5">
-          <div className="hero-copy pointer-events-auto w-full min-w-0 max-w-[52rem]">
-            <h1 className="hero-title order-1 mx-0 max-w-6xl text-balance text-left text-[clamp(2.25rem,5.8vw,5rem)] font-medium leading-[.91] tracking-[-0.075em] text-white">Качественная<br className="sm:hidden" /> разработка<br className="hidden sm:block" /><br className="sm:hidden" /> ваших<br className="sm:hidden" /> <span className="hero-liquid-text">цифровых продуктов</span></h1>
+          <div className="hero-copy pointer-events-auto w-full min-w-0 max-w-[70rem]">
+            <h1 className="hero-title order-1 mx-0 max-w-6xl text-left text-[clamp(2.25rem,5.8vw,5rem)] font-medium leading-[.91] tracking-[-0.075em] text-white">Качественная разработка<br />ваших<br /><span className="hero-liquid-text">цифровых продуктов</span></h1>
             <p className="hero-description order-3 mx-0 mt-3 max-w-2xl text-left text-sm leading-relaxed text-slate-400 sm:text-base md:text-lg">Продумываю интерфейс, разрабатываю функционал и довожу проект до запуска.</p>
             <div className="hero-actions order-4 mt-6 flex w-full flex-wrap items-center justify-start gap-3 sm:mt-8 sm:gap-5"><a href="#work" className="inline-flex min-h-14 items-center gap-3 px-4 py-3 text-base text-slate-200 underline decoration-slate-500 underline-offset-8 transition hover:text-white">Смотреть работы <ArrowDown size={18} /></a><a href="#contact" className="group inline-flex min-h-14 items-center gap-3 rounded-full bg-cyan-300 px-7 py-4 text-base font-semibold text-[#04101e] transition hover:bg-white">Связаться <ArrowUpRight size={18} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></a></div>
           </div>
@@ -79,7 +79,6 @@ export default function Page() {
           <div className="about-layout">
             <div className="about-intro">
               <h2 className="about-title" data-reveal>От идеи<br />до <span>готового продукта.</span></h2>
-              <p className="about-description" data-reveal data-reveal-delay="120">Продумываю, создаю и запускаю цифровые продукты — от понятного интерфейса до надёжной логики.</p>
             </div>
             <div className="about-capabilities">
               <p className="about-info-label" data-reveal="fade">возможности</p>
