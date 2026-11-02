@@ -606,7 +606,7 @@ export function PortfolioScene({ variant = 'hero', isMobile = false }: { variant
   }, [])
 
   return (
-    <div ref={scene} className={isContact ? 'h-[300px] w-full sm:h-[420px]' : 'h-full w-full'} role="img" aria-label={isContact ? 'Animated 3D chat bubble' : 'Animated 3D glass cloud'}>
+    <div ref={scene} className={isContact ? 'h-[250px] w-full sm:h-[420px]' : 'h-full w-full'} role="img" aria-label={isContact ? 'Animated 3D chat bubble' : 'Animated 3D glass cloud'}>
       <Canvas dpr={isMobile ? 1.4 : 1} gl={{ alpha: true, antialias: false, powerPreference: 'low-power' }} frameloop="demand" camera={{ fov: isContact ? 45 : isMobile ? 56 : 80, position: [0, 0, isContact ? 5.1 : 6.2] }}>
         <FrameRateController active={active} fpsTarget={fpsTarget} />
         {isContact ? (

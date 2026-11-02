@@ -457,7 +457,7 @@ main > section:not(#top) > .design-quote-inner,
 }
 .contact-methods-title { margin-top: -2.5rem; }
 .contact-methods-links { margin-top: 1.6rem; }
-.contact-description { font-size: .92rem; }
+.contact-description { max-width: 30rem; margin-left: 0; padding-left: 0; font-size: .92rem; text-align: left; }
 
 .section-tint-contact::before { display: none; }
 
@@ -1292,15 +1292,16 @@ main > section:not(#top) > .design-quote-inner,
   :root { --section-content-inset: 0rem; }
   #top { padding-bottom: 1.5rem; }
   #contact { padding-top: 2rem; }
-  #contact > div > div { min-height: auto; align-content: start; margin-top: .5rem; }
+  #contact > div > div { min-height: auto; align-content: start; margin-top: .5rem; row-gap: 1rem; }
   .site-header-inner { width: calc(100% - 2.25rem); height: 56px; gap: .7rem; padding: 0 .75rem 0 1.25rem; background: rgb(5 11 23 / 92%); }
   .design-quote-copy { font-size: clamp(1.25rem, 5.2vw, 1.65rem); }
   .about-layout { grid-template-columns: minmax(0, 1fr); gap: 3rem; padding: clamp(3rem, 8vh, 5rem) 0; }
   .about-title { font-size: clamp(2.5rem, 9.5vw, 3.5rem); }
   .services-heading h2 { font-size: clamp(2.4rem, 9vw, 3.2rem); }
   .contact-title { font-size: clamp(4.5rem, 16vw, 5.2rem); }
-  .contact-description { font-size: .82rem; line-height: 1.55; }
-  .contact-methods-title { margin-top: -3rem; }
+  .contact-description { margin-top: .9rem; font-size: .82rem; line-height: 1.5; }
+  .contact-scene-wrap { margin-bottom: -7rem; }
+  .contact-methods-title { margin-top: -1rem; }
   .contact-methods-links { margin-top: 1.25rem; }
   .contact-scene-wrap { width: min(100%, 20rem); }
   .about-description { margin-top: 1.2rem; }
