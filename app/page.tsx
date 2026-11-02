@@ -181,7 +181,6 @@ export default function Page() {
           <blockquote>
             <DesignQuoteCopy />
           </blockquote>
-          <figcaption data-reveal="fade">— Steve Jobs</figcaption>
         </figure>
       </section>
 
